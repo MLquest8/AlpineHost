@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Install xorg, base-devel files/tools, and everything concerning virtualization
-setup-xorg-base
+sudo setup-xorg-base
 sudo apk add zsh htop \
 	g++ make ncurses \
 	libx11-dev libxft-dev libxinerama-dev \
