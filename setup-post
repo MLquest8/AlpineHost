@@ -4,6 +4,7 @@
 setup-xorg-base dbus-x11 xrandr
 apk add g++ zsh htop make shadow ncurses \
 	libx11-dev libxft-dev libxinerama-dev \
+	xf86-video-intel xf86-input-synaptics \
 	qemu qemu-img qemu-modules qemu-system-x86_64 \
 	libvirt virt-viewer virt-install libvirt-daemon \
 	pulseaudio pulseaudio-alsa alsa-plugins-pulse \
