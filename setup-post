@@ -8,10 +8,8 @@ apk add g++ zsh htop make shadow ncurses \
 	libvirt virt-viewer virt-install libvirt-daemon \
 	pulseaudio pulseaudio-alsa alsa-plugins-pulse
 
-# Start and enable services
-rc-service libvirtd start
+# Enable services
 rc-update add libvirtd
-rc-service dbus start
 rc-update add dbus
 
 # Compile executables
@@ -46,11 +44,11 @@ cp -a -f Xfiles/. /etc/X11/xorg.conf.d
 sed -i s/#unicode="NO"\n\n#/#unicode="NO"\n\nunicode="YES"\n\n#/ /etc/rc.conf
 
 # Add a user and edit privileges
-echo "Enter username: " && read username
+echo "Add a new user: " && read username
 useradd -m -g users -G wheel,libvirt -s /bin/zsh $username
 echo "$username ALL=(ALL) ALL" > /etc/sudoers.d/$username
 chmod 0440 /etc/sudoers.d/$username
-passwd $username"
+passwd $username
 
 echo "Reboot the system if it is all up to your satisfaction"
 echo "Login as the newly added user and configure dotfiles"
