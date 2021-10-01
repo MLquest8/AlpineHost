@@ -1,13 +1,15 @@
 #!/bin/sh
 
-# Install xorg, base-devel files/tools, and everything concerning virtualization
-sudo setup-xorg-base
-sudo apk add htop \
+# Install base-devel files/tools, X, and everything virtualization
+apk add htop \
 	g++ make ncurses \
 	libx11-dev libxft-dev libxinerama-dev \
 	qemu qemu-img qemu-modules qemu-system-x86_64 \
-	libvirt virt-viewer virt-install libvirt-daemon
-sudo rc-update add libvirtd
+	libvirt virt-viewer virt-install libvirt-daemon \
+	pulseaudio pulseaudio-alsa alsa-plugins-pulse
+setup-xorg-base xf86-video-intel dbus-x11 xrandr
+rc-update add libvirtd
+rc-update add dbus
 
 # Compile executables
 mkdir Executables
@@ -16,29 +18,31 @@ cd Executables
 	# DWM
 	git clone https://github.com/MLquest8/dwm-orange.git
 	cd dwm-orange
-	sudo make install
+	make install
 	cd ..
 
 	# DMENU
 	git clone https://github.com/MLquest8/dmenu-persimmon.git
 	cd dmenu-persimmon
-	sudo make install
+	make install
 	cd ..
 
 	# ST
 	git clone https://github.com/MLquest8/st-plum.git
 	cd st-plum
-	sudo make install
+	make install
 	cd ..
 
 # Back to AlpineHost
 cd ..
 
-# Fix unicode defaults, edit minor configs
-sed -i s/#unicode="NO"\n\n#/#unicode="NO"\n\nunicode="YES"\n\n#/ /etc/rc.conf
-echo "exec dwm" > ~/.xinitrc
-echo "startx" > ~/.profile
+# Drop X configs in
+cp -a -f Xfiles/. /etc/X11/xorg.conf.d
 
-# Install zsh and oh-my-zsh
-#sudo apk add zsh
-#sh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+# Fix unicode defaults
+sed -i s/#unicode="NO"\n\n#/#unicode="NO"\n\nunicode="YES"\n\n#/ /etc/rc.conf
+
+# What's left?
+echo "Add a user and configure visudo"
+echo "Configre dotfiles for the user"
+echo "Reboot the system"
