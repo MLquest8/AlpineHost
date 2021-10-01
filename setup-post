@@ -1,14 +1,17 @@
 #!/bin/sh
 
-# Install base-devel files/tools, X, and everything virtualization
-apk add htop \
-	g++ make ncurses \
+# Install X, base-devel files/tools, and everything virtualization
+setup-xorg-base xf86-video-intel dbus-x11 xrandr
+apk add g++ zsh htop make shadow ncurses \
 	libx11-dev libxft-dev libxinerama-dev \
 	qemu qemu-img qemu-modules qemu-system-x86_64 \
 	libvirt virt-viewer virt-install libvirt-daemon \
 	pulseaudio pulseaudio-alsa alsa-plugins-pulse
-setup-xorg-base xf86-video-intel dbus-x11 xrandr
+
+# Start and enable services
+rc-service libvirtd start
 rc-update add libvirtd
+rc-service dbus start
 rc-update add dbus
 
 # Compile executables
@@ -42,7 +45,13 @@ cp -a -f Xfiles/. /etc/X11/xorg.conf.d
 # Fix unicode defaults
 sed -i s/#unicode="NO"\n\n#/#unicode="NO"\n\nunicode="YES"\n\n#/ /etc/rc.conf
 
-# What's left?
-echo "Add a user and configure visudo"
-echo "Configre dotfiles for the user"
-echo "Reboot the system"
+# Add a user and edit privileges
+echo "Enter username: " && read username
+useradd -m -g users -G wheel,libvirt -s /bin/zsh $username
+echo "$username ALL=(ALL) ALL" > /etc/sudoers.d/$username
+chmod 0440 /etc/sudoers.d/$username
+passwd $username"
+
+echo "Reboot the system if it is all up to your satisfaction"
+echo "Login as the newly added user and configure dotfiles"
+echo "Edit visudo to give privileges to wheel if needed"
