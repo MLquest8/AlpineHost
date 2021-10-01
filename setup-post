@@ -1,0 +1,8 @@
+setup-xorg-base
+apk add zsh htop sudo \
+	g++ git make ncurses \
+	libx11-dev libxft-dev libxinerama-dev \
+	qemu qemu-img qemu-modules qemu-system-x86_64 \
+	libvirt virt-viewer virt-install libvirt-daemon
+sed -i s/#unicode="NO"\n\n#/#unicode="NO"\n\nunicode="YES"\n\n#/ /etc/rc.conf
+sh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
