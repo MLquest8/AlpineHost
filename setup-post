@@ -1,12 +1,14 @@
 #!/bin/sh
 
 # Install X, base-devel files/tools, and everything virtualization
-setup-xorg-base xf86-video-intel dbus-x11 xrandr
+setup-xorg-base dbus-x11 xrandr
 apk add g++ zsh htop make shadow ncurses \
 	libx11-dev libxft-dev libxinerama-dev \
 	qemu qemu-img qemu-modules qemu-system-x86_64 \
 	libvirt virt-viewer virt-install libvirt-daemon \
-	pulseaudio pulseaudio-alsa alsa-plugins-pulse
+	pulseaudio pulseaudio-alsa alsa-plugins-pulse \
+	xf86-video-intel xf86-input-synaptics \
+	ttf-liberation ttf-font-awesome
 
 # Enable services
 rc-update add libvirtd
@@ -43,13 +45,14 @@ cp -a -f Xfiles/. /etc/X11/xorg.conf.d
 # Fix unicode defaults
 sed -i s/#unicode="NO"\n\n#/#unicode="NO"\n\nunicode="YES"\n\n#/ /etc/rc.conf
 
-# Add a user and edit privileges
+# Add a user and give them privileges
 echo "Add a new user: " && read username
-useradd -m -g users -G wheel,libvirt -s /bin/zsh $username
+useradd -m -g users -G wheel,libvirt,video,audio,input -s /bin/zsh $username
 echo "$username ALL=(ALL) ALL" > /etc/sudoers.d/$username
 chmod 0440 /etc/sudoers.d/$username
 passwd $username
 
-echo "Reboot the system if it is all up to your satisfaction"
-echo "Login as the newly added user and configure dotfiles"
-echo "Edit visudo to give privileges to wheel if needed"
+# Final words
+echo "===================================================="
+echo "Login as the new user and edit dotfiles after reboot"
+echo "Press ENTER to reboot..." && read && reboot
