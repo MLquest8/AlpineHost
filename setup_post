@@ -1,8 +1,7 @@
 #!/bin/bash
 
 # Install everything
-pacman -S \
-	zathura zathura-cb zathura-pdf-mupdf zathura-djvu zathura-ps \
+pacman -S zathura zathura-cb zathura-pdf-mupdf zathura-djvu zathura-ps \
 	xorg xorg-xinit xorg-server xorg-xrandr xwallpaper \
 	xf86-video-intel libva-intel-driver libva-utils \
 	pulseaudio pulseaudio-alsa alsa-utils ponymix \
