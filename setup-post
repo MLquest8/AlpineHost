@@ -22,24 +22,24 @@ mkdir Executables
 cd Executables
 
 	# DWM
-	git clone https://github.com/MLquest8/dwm-orange.git
-	cd dwm-orange
+	git clone https://github.com/MLquest8/dwm.git && cd dwm
+	git checkout alpinehost
 	make install
 	cd ..
 
 	# DMENU
-	git clone https://github.com/MLquest8/dmenu-persimmon.git
-	cd dmenu-persimmon
+	git clone https://github.com/MLquest8/dmenu.git && cd dmenu
+	git checkout alpinehost
 	make install
 	cd ..
 
 	# ST
-	git clone https://github.com/MLquest8/st-plum.git
-	cd st-plum
+	git clone https://github.com/MLquest8/st.git && cd st
+	git checkout alpinehost
 	make install
 	cd ..
 
-# Back to AlpineHost
+# Back to alpinehost
 cd ..
 
 # Drop X configs in
