@@ -11,6 +11,7 @@ pacman -S zathura zathura-cb zathura-pdf-mupdf zathura-djvu zathura-ps \
 	xf86-input-synaptics \
 	zsh ranger p7zip \
 	sudo code gdb \
+	keepassxc \
 	sxiv mpv
 
 # Compile executables
