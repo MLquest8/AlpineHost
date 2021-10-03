@@ -2,11 +2,11 @@ sudo virt-install \
 	--name Alpine \
 	--os-type=Linux \
 	--os-variant=alpinelinux3.14 \
-	--description "Test VM with Alpine" \
-	--disk path=vmAlpine.img,bus=virtio,size=10 \
-	--cdrom HostVM/ISOs/alpine-extended-3.14.2-x86_64.iso \
-	--vcpus=2 \
-	--ram=2048 \
+	--description "Alpine VM workstation" \
+	--cdrom ISO/alpine-extended-3.14.2-x86_64.iso \
+	--disk path=vmAlpine.qcow2,format=qcow2,sparse=no,size=10 \
+	--vcpus=1 \
+	--ram=1024 \
 	--check-cpu \
 	--arch=x86_64 \
 	--virt-type kvm \
