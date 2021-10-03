@@ -18,8 +18,8 @@ rc-update add alsa
 rc-update add dbus
 
 # Compile executables
-mkdir Executables
-cd Executables
+mkdir executables
+cd executables
 
 	# DWM
 	git clone https://github.com/MLquest8/dwm.git && cd dwm
@@ -43,7 +43,7 @@ cd Executables
 cd ..
 
 # Drop X configs in
-cp -a -f Xfiles/. /etc/X11/xorg.conf.d
+cp -a -f xfiles/. /etc/X11/xorg.conf.d
 
 # Fix unicode defaults
 sed -i s/#unicode="NO"\n\n#/#unicode="NO"\n\nunicode="YES"\n\n#/ /etc/rc.conf
