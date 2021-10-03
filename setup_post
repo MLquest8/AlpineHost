@@ -1,0 +1,73 @@
+#!/bin/bash
+
+# Install everything
+pacman -S \
+	zathura zathura-cb zathura-pdf-mupdf zathura-djvu zathura-ps \
+	xorg xorg-xinit xorg-server xorg-xrandr xwallpaper \
+	xf86-video-intel libva-intel-driver libva-utils \
+	pulseaudio pulseaudio-alsa alsa-utils ponymix \
+	firefox aria2 youtube-dl streamlink \
+	ttf-font-awesome ttf-liberation \
+	network-manager-applet \
+	xf86-input-synaptics \
+	zsh ranger p7zip \
+	sudo code gdb \
+	sxiv mpv
+
+# Compile executables
+mkdir executables
+cd executables
+
+	# DWM
+	git clone https://github.com/MLquest8/dwm.git && cd dwm
+	git checkout dailyarcher
+	make install
+	cd ..
+
+	# DMENU
+	git clone https://github.com/MLquest8/dmenu.git && cd dmenu
+	git checkout dailyarcher
+	make install
+	cd ..
+
+	# ST
+	git clone https://github.com/MLquest8/st.git && cd st
+	git checkout dailyarcher
+	make install
+	cd ..
+
+	# Tulizu
+	git clone https://github.com/loh-tar/tulizu.git && cd tulizu
+	make install
+	tulizu install arch-rson451.issue
+	cd ..
+
+# Back to main directory
+cd ..
+
+# Add a user and give them privileges
+echo "Add a new user: " && read username
+useradd -m -g users -G wheel,video,audio,input -s /bin/zsh $username
+echo "$username ALL=(ALL) ALL" > /etc/sudoers.d/$username
+chmod 0440 /etc/sudoers.d/$username
+passwd $username
+
+# Copy X configs
+cp -a -f xfiles/. /etc/X11/xorg.conf.d
+
+# Copy and link dotfiles
+homedir=$(awk -F: -v v="$username" '{if ($1==v) print $6}' /etc/passwd)
+mkdir -p $homedir/.config/$username/
+cp -a -f dotfiles/. $homedir/.config/$username/
+ln -sf $homedir/.config/$username/.* $homedir/
+
+# Install OhMyZsh
+su $username && cd $homedir
+zsh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="bira"/' .zshrc
+sed -i 's/plugins=(git)/plugins=(git sudo)/' .zshrc
+
+# Final words
+echo "===================================================="
+echo "Enter $username password to reboot..." && sudo reboot
+echo "===================================================="
