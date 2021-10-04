@@ -1,5 +1,9 @@
 #!/bin/bash
 
+echo "====================================================="
+echo "Installing packages from the official repositories..."
+echo "====================================================="
+
 # Install everything
 pacman -S zathura zathura-cb zathura-pdf-mupdf zathura-djvu zathura-ps \
 	xorg xorg-xinit xorg-server xorg-xrandr xwallpaper \
@@ -13,6 +17,10 @@ pacman -S zathura zathura-cb zathura-pdf-mupdf zathura-djvu zathura-ps \
 	sudo code gdb \
 	keepassxc \
 	sxiv mpv
+
+echo "====================================================="
+echo "Packages installed. Compiling the rest from source..."
+echo "====================================================="
 
 # Compile executables
 mkdir executables
@@ -45,8 +53,12 @@ cd executables
 # Back to main directory
 cd ..
 
+echo "====================================================="
+echo "Sources compiled. Adding user and editing dotfiles..."
+echo "====================================================="
+
 # Add a user and give them privileges
-echo "Add a new user: " && read username
+echo "Enter username for a new user: " && read username
 useradd -m -g users -G wheel,video,audio,input -s /bin/zsh $username
 echo "$username ALL=(ALL) ALL" > /etc/sudoers.d/$username
 chmod 0440 /etc/sudoers.d/$username
@@ -60,14 +72,20 @@ homedir=$(awk -F: -v v="$username" '{if ($1==v) print $6}' /etc/passwd)
 mkdir -p $homedir/.config/$username/
 cp -a -f dotfiles/. $homedir/.config/$username/
 ln -sf $homedir/.config/$username/.* $homedir/
+chown -R $username:users $homedir/.config/
 
-# Install OhMyZsh
-su $username && cd $homedir
-zsh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="bira"/' .zshrc
-sed -i 's/plugins=(git)/plugins=(git sudo)/' .zshrc
+# Install and configure OhMyZsh
+fgGreen='%{$fg[green]%}'
+fgCyan='%{$fg[cyan]%}'
+fgReset='%{$reset_color%}'
+retStatus='${ret_status}'
+gitInfo='$(git_prompt_info)'
+su -l $username -c 'sh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended'
+echo "# export PROMPT='${fgGreen}%n@%m${fgReset} ${retStatus} ${fgCyan}%c${fgReset} ${gitInfo}'" >> $homedir/.zshrc
+sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="bira"/' $homedir/.zshrc
+sed -i 's/plugins=(git)/plugins=(git sudo)/' $homedir/.zshrc
 
-# Final words
-echo "===================================================="
-echo "Enter $username password to reboot..." && sudo reboot
-echo "===================================================="
+echo "====================================================="
+echo "Installation finished successfully! Press ENTER to..." 
+echo "====================================================="
+read && reboot
