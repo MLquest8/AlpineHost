@@ -1,22 +1,53 @@
 #!/bin/sh
 
 echo "====================================================="
+echo "Set up essentials: timezones, locale, network, etc..."
+echo "====================================================="
+
+# Set the time zone and generate /etc/adjtime
+ln -sf /usr/share/zoneinfo/Asia/Tbilisi /etc/localtime
+hwclock --systohc
+
+# Generate locale
+sed -i 's/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
+locale-gen
+
+# Set the LANG variable
+echo "LANG=en_US.UTF-8" > /etc/locale.conf
+
+# Create the hostname file: 
+read -p "Enter hostname for the machine: " hostname
+echo "$hostname" > /etc/hostname
+
+echo "127.0.0.1	localhost" >> /etc/hosts
+echo "::1		localhost" >> /etc/hosts
+echo "127.0.1.1	$hostname" >> /etc/hosts
+
+echo "====================================================="
 echo "Installing packages from the official repositories..."
 echo "====================================================="
 
 # Install everything
-pacman -S zathura zathura-cb zathura-pdf-mupdf zathura-djvu zathura-ps \
+pacman -S grub efibootmgr intel-ucode networkmanager \
 	xorg xorg-xinit xorg-server xorg-xrandr xwallpaper \
-	xf86-video-intel libva-intel-driver libva-utils \
-	pulseaudio pulseaudio-alsa alsa-utils ponymix \
-	firefox aria2 youtube-dl streamlink \
-	ttf-font-awesome ttf-liberation \
-	network-manager-applet \
-	xf86-input-synaptics \
-	zsh ranger p7zip \
-	sudo code gdb \
+	pulseaudio pulseaudio-alsa alsa-utils \
+	xf86-video-intel xf86-input-synaptics \
+	libva-intel-driver libva-utils \
+	ttf-font-awesome ttf-dejavu \
+	zsh sudo code gdb p7zip \
+	firefox aria2 \
 	keepassxc \
-	sxiv mpv
+	sxiv mpv \
+	ranger
+
+# Install grub into /efi
+grub-install --target=x86_64-efi --bootloader-id=GRUB --efi-directory=/efi --removable
+grub-mkconfig -o /boot/grub/grub.cfg
+
+# Activate systemd services
+systemctl enable systemd-resolved
+systemctl enable NetworkManager
+systemctl enable polkit
 
 echo "====================================================="
 echo "Packages installed. Compiling the rest from source..."
@@ -44,6 +75,11 @@ cd executables
 	make install
 	cd ..
 
+	# Ponymix
+	git clone https://github.com/falconindy/ponymix.git && cd ponymix
+	make install
+	cd ..
+
 	# Tulizu
 	git clone https://github.com/loh-tar/tulizu.git && cd tulizu
 	make install
@@ -58,21 +94,14 @@ echo "Sources compiled. Adding user and editing dotfiles..."
 echo "====================================================="
 
 # Add a user and give them privileges
-echo "Enter username for a new user: " && read username
+read -p "Enter username for the new user: " username
 useradd -m -g users -G wheel,video,audio,input -s /bin/zsh $username
-echo "$username ALL=(ALL) ALL" > /etc/sudoers.d/$username
+echo "$username ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/$username
 chmod 0440 /etc/sudoers.d/$username
 passwd $username
 
-# Copy X configs
-cp -a -f xfiles/. /etc/X11/xorg.conf.d
-
-# Copy and link dotfiles
+# Find homedir of the new user
 homedir=$(awk -F: -v v="$username" '{if ($1==v) print $6}' /etc/passwd)
-mkdir -p $homedir/.config/$username/
-cp -a -f dotfiles/. $homedir/.config/$username/
-ln -sf $homedir/.config/$username/.* $homedir/
-chown -R $username:users $homedir/.config/
 
 # Install and configure OhMyZsh
 fgGreen='%{$fg[green]%}'
@@ -80,10 +109,22 @@ fgCyan='%{$fg[cyan]%}'
 fgReset='%{$reset_color%}'
 retStatus='${ret_status}'
 gitInfo='$(git_prompt_info)'
-su -l $username -c 'sh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended'
+su -l $username -c 'sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended'
 echo "# export PROMPT='${fgGreen}%n@%m${fgReset} ${retStatus} ${fgCyan}%c${fgReset} ${gitInfo}'" >> $homedir/.zshrc
 sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="bira"/' $homedir/.zshrc
 sed -i 's/plugins=(git)/plugins=(git sudo)/' $homedir/.zshrc
+
+# Update font cache
+fc-cache -fv
+
+# Copy X configs
+cp -a -f xfiles/. /etc/X11/xorg.conf.d
+
+# Copy and link dotfiles
+mkdir -p $homedir/.config/$username/
+cp -a -f dotfiles/. $homedir/.config/$username/
+ln -sf $homedir/.config/$username/.* $homedir/
+chown -R $username:users $homedir/.config/
 
 echo "====================================================="
 echo "Installation finished successfully! Press ENTER to..." 
