@@ -28,7 +28,7 @@ echo "Installing packages from the official repositories..."
 echo "====================================================="
 
 # Install everything
-pacman -S grub efibootmgr intel-ucode networkmanager \
+pacman -S grub efibootmgr os-prober intel-ucode networkmanager \
 	xorg xorg-xinit xorg-server xorg-xrandr xwallpaper \
 	pulseaudio pulseaudio-alsa alsa-utils \
 	xf86-video-intel xf86-input-synaptics \
@@ -41,13 +41,13 @@ pacman -S grub efibootmgr intel-ucode networkmanager \
 	ranger
 
 # Install grub into /efi
-grub-install --target=x86_64-efi --bootloader-id=GRUB --efi-directory=/efi --removable
+echo "GRUB_DISABLE_OS_PROBER=false" >> etc/default/grub
+grub-install --target=x86_64-efi --bootloader-id=ArchLinux --efi-directory=/efi
 grub-mkconfig -o /boot/grub/grub.cfg
 
 # Activate systemd services
 systemctl enable systemd-resolved
 systemctl enable NetworkManager
-systemctl enable polkit
 
 echo "====================================================="
 echo "Packages installed. Compiling the rest from source..."
