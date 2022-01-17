@@ -6,6 +6,7 @@ echo "====================================================="
 
 # Set the time zone and generate /etc/adjtime
 ln -sf /usr/share/zoneinfo/Asia/Tbilisi /etc/localtime
+timedatectl set-ntp true
 hwclock --systohc
 
 # Generate locale
@@ -20,7 +21,7 @@ read -p "Enter hostname for the machine: " hostname
 echo "$hostname" > /etc/hostname
 
 echo "127.0.0.1	localhost" >> /etc/hosts
-echo "::1		localhost" >> /etc/hosts
+echo "::1       localhost" >> /etc/hosts
 echo "127.0.1.1	$hostname" >> /etc/hosts
 
 echo "====================================================="
@@ -28,7 +29,7 @@ echo "Installing packages from the official repositories..."
 echo "====================================================="
 
 # Install everything
-pacman -S grub efibootmgr os-prober intel-ucode networkmanager \
+pacman -S efibootmgr refind intel-ucode networkmanager \
 	xorg xorg-xinit xorg-server xorg-xrandr xwallpaper \
 	pulseaudio pulseaudio-alsa alsa-utils \
 	xf86-video-intel xf86-input-synaptics \
@@ -40,10 +41,9 @@ pacman -S grub efibootmgr os-prober intel-ucode networkmanager \
 	sxiv mpv \
 	ranger
 
-# Install grub into /efi
-echo "GRUB_DISABLE_OS_PROBER=false" >> etc/default/grub
-grub-install --target=x86_64-efi --bootloader-id=ArchLinux --efi-directory=/efi
-grub-mkconfig -o /boot/grub/grub.cfg
+# Install rEFInd into /efi
+refind-install
+echo "timeout 7" >> /boot/efi/EFI/refind/refind.conf
 
 # Activate systemd services
 systemctl enable systemd-resolved
@@ -127,6 +127,32 @@ ln -sf $homedir/.config/$username/.* $homedir/
 chown -R $username:users $homedir/.config/
 
 echo "====================================================="
-echo "Installation finished successfully! Press ENTER to..." 
+echo "Installing and configuring rEFInd dark theme (git)..." 
+echo "====================================================="
+
+# Clone refind-theme-regular
+git clone https://github.com/bobafetthotmail/refind-theme-regular.git && cd refind-theme-regular
+mkdir -p /boot/efi/EFI/refind/themes/regular/
+cp src/theme.conf theme.conf
+theme_path="_dark"
+theme_name="dark"
+size_small="48"
+size_big="128"
+
+# Edit theme.conf
+sed -i "s/#big_icon_size $size_big/big_icon_size $size_big/" theme.conf
+sed -i "s/#small_icon_size $size_small/small_icon_size $size_small/" theme.conf
+sed -i "s/#icons_dir themes\/refind-theme-regular\/icons\/$size_big-$size_small/icons_dir themes\/refind-theme-regular\/icons\/$size_big-$size_small/" theme.conf
+sed -i "s/#banner themes\/refind-theme-regular\/icons\/$size_big-$size_small\/bg$theme_path.png/banner themes\/refind-theme-regular\/icons\/$size_big-$size_small\/bg$theme_path.png/" theme.conf
+sed -i "s/#selection_big themes\/refind-theme-regular\/icons\/$size_big-$size_small\/selection$theme_path-big.png/selection_big themes\/refind-theme-regular\/icons\/$size_big-$size_small\/selection$theme_path-big.png/" theme.conf
+sed -i "s/#selection_small themes\/refind-theme-regular\/icons\/$size_big-$size_small\/selection$theme_path-small.png/selection_small themes\/refind-theme-regular\/icons\/$size_big-$size_small\/selection$theme_path-small.png/" theme.conf
+
+# Finalize
+echo "include themes/regular/theme.conf" >> /boot/efi/EFI/refind/refind.conf
+cp -r fonts icons theme.conf /boot/efi/EFI/refind/themes/regular/
+cd ..
+
+echo "====================================================="
+echo "Installation finished successfully! Press ENTER to..."
 echo "====================================================="
 read && reboot
