@@ -1,3 +1,4 @@
 xwallpaper --center ~/.config/$USER/wallpaper.* &
 xcompmgr -c -f -D 10 & 
 nm-applet &
+gxkb &
