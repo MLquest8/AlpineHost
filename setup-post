@@ -36,8 +36,8 @@ pacman -S efibootmgr refind intel-ucode networkmanager \
 	libva-intel-driver libva-utils \
 	ttf-font-awesome ttf-dejavu \
 	zsh sudo code gdb p7zip \
+	keepassxc gxkb \
 	firefox aria2 \
-	keepassxc \
 	sxiv mpv \
 	ranger
 
@@ -46,6 +46,7 @@ refind-install
 echo "timeout 7" >> /boot/efi/EFI/refind/refind.conf
 
 # Activate systemd services
+systemctl enable systemd-timesyncd
 systemctl enable systemd-resolved
 systemctl enable NetworkManager
 
