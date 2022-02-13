@@ -1,4 +1,5 @@
-xwallpaper --center ~/.config/$USER/wallpaper.* &
+xwallpaper --center ~/.config/$USER/wallpaper.* & 
 xcompmgr -c -f -D 10 & 
-nm-applet &
-gxkb &
+dwmstatus & 
+nm-applet & 
+gxkb & 
