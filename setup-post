@@ -1,12 +1,53 @@
 #!/bin/sh
 
+#Readers
+#pacRead='zathura zathura-cb zathura-pdf-mupdf zathura-djvu zathura-ps'
+
+#Root
+pacRoot='efibootmgr refind intel-ucode networkmanager sudo btop'
+
+#Xorg
+pacXorg='xorg xorg-xinit xorg-server xorg-xrandr xwallpaper'
+
+#Video
+pacVideo='xf86-video-intel libva-intel-driver libva-utils'
+
+#Audio
+pacAudio='pulseaudio pulseaudio-alsa alsa-utils'
+
+#Internet
+pacNet='firefox chromium qbittorrent yt-dlp'
+
+#Fonts
+pacFonts='ttf-font-awesome ttf-dejavu'
+
+#Tray
+pacTray='gxkb network-manager-applet'
+
+#Input
+pacInput='xf86-input-synaptics'
+
+#Terminal
+pacTerm='zsh zsh-completions'
+
+#Files
+pacFile='ranger p7zip'
+
+#Passwords
+pacPass='keepassxc'
+
+#Media
+pacMedia='sxiv mpv'
+
+#Code
+pacCode='code gdb'
+
 echo "====================================================="
 echo "Set up essentials: timezones, locale, network, etc..."
 echo "====================================================="
 
 # Set the time zone and generate /etc/adjtime
 ln -sf /usr/share/zoneinfo/Asia/Tbilisi /etc/localtime
-timedatectl set-ntp true
 hwclock --systohc
 
 # Generate locale
@@ -29,17 +70,7 @@ echo "Installing packages from the official repositories..."
 echo "====================================================="
 
 # Install everything
-pacman -S efibootmgr refind intel-ucode networkmanager \
-	xorg xorg-xinit xorg-server xorg-xrandr xwallpaper \
-	pulseaudio pulseaudio-alsa alsa-utils \
-	xf86-video-intel xf86-input-synaptics \
-	libva-intel-driver libva-utils \
-	ttf-font-awesome ttf-dejavu \
-	zsh sudo code gdb p7zip \
-	keepassxc gxkb \
-	firefox aria2 \
-	sxiv mpv \
-	ranger
+pacman -S $pacRoot $pacXorg $pacVideo $pacAudio $pacNet $pacFonts $pacTray $pacInput $pacTerm $pacFile $pacPass $pacMedia $pacCode
 
 # Install rEFInd into /efi
 refind-install
@@ -59,19 +90,19 @@ mkdir executables
 cd executables
 
 	# DWM
-	git clone https://github.com/MLquest8/dwm.git && cd dwm
+	git clone https://github.com/vipolar/dwm.git && cd dwm
 	git checkout dailyarcher
 	make install
 	cd ..
 
 	# DMENU
-	git clone https://github.com/MLquest8/dmenu.git && cd dmenu
+	git clone https://github.com/vipolar/dmenu.git && cd dmenu
 	git checkout dailyarcher
 	make install
 	cd ..
 
 	# ST
-	git clone https://github.com/MLquest8/st.git && cd st
+	git clone https://github.com/vipolar/st.git && cd st
 	git checkout dailyarcher
 	make install
 	cd ..
@@ -119,13 +150,19 @@ sed -i 's/plugins=(git)/plugins=(git sudo)/' $homedir/.zshrc
 fc-cache -fv
 
 # Copy X configs
-cp -a -f xfiles/. /etc/X11/xorg.conf.d
+cp -a -f ConfigX/. /etc/X11/xorg.conf.d/
 
 # Copy and link dotfiles
-mkdir -p $homedir/.config/$username/
-cp -a -f dotfiles/. $homedir/.config/$username/
-ln -sf $homedir/.config/$username/.* $homedir/
+mkdir -p $homedir/.config/
+cp -a -f Config/. $homedir/.config/
+ln -sf $homedir/.config/.* $homedir/
 chown -R $username:users $homedir/.config/
+
+# Copy user scripts to PATH
+cp -a -f Scripts/. /usr/local/bin
+
+# set up Quad9 dns
+echo -e '[global-dns-domain-*]\nservers=9.9.9.9\n' > /etc/NetworkManager/conf.d/dns-servers.conf
 
 echo "====================================================="
 echo "Installing and configuring rEFInd dark theme (git)..." 
