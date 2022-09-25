@@ -1,47 +1,4 @@
 #!/bin/sh
-
-#Readers
-#pacRead='zathura zathura-cb zathura-pdf-mupdf zathura-djvu zathura-ps'
-
-#Root
-pacRoot='efibootmgr refind intel-ucode networkmanager sudo btop'
-
-#Xorg
-pacXorg='xorg xorg-xinit xorg-server xorg-xrandr xwallpaper'
-
-#Video
-pacVideo='xf86-video-intel libva-intel-driver libva-utils'
-
-#Audio
-pacAudio='pulseaudio pulseaudio-alsa alsa-utils'
-
-#Internet
-pacNet='firefox chromium qbittorrent yt-dlp'
-
-#Fonts
-pacFonts='ttf-font-awesome ttf-dejavu'
-
-#Tray
-pacTray='gxkb network-manager-applet'
-
-#Input
-pacInput='xf86-input-synaptics'
-
-#Terminal
-pacTerm='zsh zsh-completions'
-
-#Files
-pacFile='ranger p7zip'
-
-#Passwords
-pacPass='keepassxc'
-
-#Media
-pacMedia='sxiv mpv'
-
-#Code
-pacCode='code gdb'
-
 echo "====================================================="
 echo "Set up essentials: timezones, locale, network, etc..."
 echo "====================================================="
@@ -70,11 +27,10 @@ echo "Installing packages from the official repositories..."
 echo "====================================================="
 
 # Install everything
-pacman -S $pacRoot $pacXorg $pacVideo $pacAudio $pacNet $pacFonts $pacTray $pacInput $pacTerm $pacFile $pacPass $pacMedia $pacCode
+grep -v "^#" setup-paclist | pacman -S
 
 # Install rEFInd into /efi
 refind-install
-echo "timeout 7" >> /boot/efi/EFI/refind/refind.conf
 
 # Activate systemd services
 systemctl enable systemd-timesyncd
@@ -135,22 +91,19 @@ passwd $username
 # Find homedir of the new user
 homedir=$(awk -F: -v v="$username" '{if ($1==v) print $6}' /etc/passwd)
 
+# set up Quad9 dns
+echo -e '[global-dns-domain-*]\nservers=9.9.9.9\n' > /etc/NetworkManager/conf.d/dns-servers.conf
+
 # Install and configure OhMyZsh
-fgGreen='%{$fg[green]%}'
-fgCyan='%{$fg[cyan]%}'
-fgReset='%{$reset_color%}'
-retStatus='${ret_status}'
-gitInfo='$(git_prompt_info)'
 su -l $username -c 'sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended'
-echo "# export PROMPT='${fgGreen}%n@%m${fgReset} ${retStatus} ${fgCyan}%c${fgReset} ${gitInfo}'" >> $homedir/.zshrc
 sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="bira"/' $homedir/.zshrc
 sed -i 's/plugins=(git)/plugins=(git sudo)/' $homedir/.zshrc
 
-# Update font cache
-fc-cache -fv
-
-# Copy X configs
-cp -a -f ConfigX/. /etc/X11/xorg.conf.d/
+# Configure rEFInd
+mkdir -p /boot/efi/EFI/refind/themes/regular/
+cp -a -f Boot/. /boot/efi/EFI/refind/themes/regular/
+echo "include themes/regular/theme.conf" >> /boot/efi/EFI/refind/refind.conf
+echo "timeout 7" >> /boot/efi/EFI/refind/refind.conf
 
 # Copy and link dotfiles
 mkdir -p $homedir/.config/
@@ -158,37 +111,14 @@ cp -a -f Config/. $homedir/.config/
 ln -sf $homedir/.config/.* $homedir/
 chown -R $username:users $homedir/.config/
 
+# Copy X configs
+cp -a -f ConfigX/. /etc/X11/xorg.conf.d/
+
 # Copy user scripts to PATH
 cp -a -f Scripts/. /usr/local/bin
 
-# set up Quad9 dns
-echo -e '[global-dns-domain-*]\nservers=9.9.9.9\n' > /etc/NetworkManager/conf.d/dns-servers.conf
-
-echo "====================================================="
-echo "Installing and configuring rEFInd dark theme (git)..." 
-echo "====================================================="
-
-# Clone refind-theme-regular
-git clone https://github.com/bobafetthotmail/refind-theme-regular.git && cd refind-theme-regular
-mkdir -p /boot/efi/EFI/refind/themes/regular/
-cp src/theme.conf theme.conf
-theme_path="_dark"
-theme_name="dark"
-size_small="48"
-size_big="128"
-
-# Edit theme.conf
-sed -i "s/#big_icon_size $size_big/big_icon_size $size_big/" theme.conf
-sed -i "s/#small_icon_size $size_small/small_icon_size $size_small/" theme.conf
-sed -i "s/#icons_dir themes\/refind-theme-regular\/icons\/$size_big-$size_small/icons_dir themes\/refind-theme-regular\/icons\/$size_big-$size_small/" theme.conf
-sed -i "s/#banner themes\/refind-theme-regular\/icons\/$size_big-$size_small\/bg$theme_path.png/banner themes\/refind-theme-regular\/icons\/$size_big-$size_small\/bg$theme_path.png/" theme.conf
-sed -i "s/#selection_big themes\/refind-theme-regular\/icons\/$size_big-$size_small\/selection$theme_path-big.png/selection_big themes\/refind-theme-regular\/icons\/$size_big-$size_small\/selection$theme_path-big.png/" theme.conf
-sed -i "s/#selection_small themes\/refind-theme-regular\/icons\/$size_big-$size_small\/selection$theme_path-small.png/selection_small themes\/refind-theme-regular\/icons\/$size_big-$size_small\/selection$theme_path-small.png/" theme.conf
-
-# Finalize
-echo "include themes/regular/theme.conf" >> /boot/efi/EFI/refind/refind.conf
-cp -r fonts icons theme.conf /boot/efi/EFI/refind/themes/regular/
-cd ..
+# Update font cache
+fc-cache -fv
 
 echo "====================================================="
 echo "Installation finished successfully! Press ENTER to..."

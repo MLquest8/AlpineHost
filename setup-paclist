@@ -1,0 +1,41 @@
+#Readers
+#zathura zathura-cb zathura-pdf-mupdf zathura-djvu zathura-ps
+
+#Root
+efibootmgr refind intel-ucode networkmanager sudo btop
+
+#Xorg
+xorg xorg-xinit xorg-server xorg-xrandr xwallpaper
+
+#Video
+xf86-video-intel libva-intel-driver libva-utils
+
+#Audio
+pulseaudio pulseaudio-alsa alsa-utils
+
+#Internet
+firefox chromium qbittorrent yt-dlp
+
+#Fonts
+ttf-font-awesome ttf-dejavu
+
+#Tray
+gxkb network-manager-applet
+
+#Input
+xf86-input-synaptics
+
+#Terminal
+zsh zsh-completions
+
+#Files
+ranger p7zip
+
+#Passwords
+keepassxc
+
+#Media
+sxiv mpv
+
+#Code
+code gdb
