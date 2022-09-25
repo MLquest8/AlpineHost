@@ -1,4 +1,9 @@
 #!/bin/sh
+read -p "If you're satisfied with the script type 'setup' to continue : " PROMPT
+if [[ "$PROMPT" != "setup" ]]; then
+    exit
+fi
+
 echo "====================================================="
 echo "Set up essentials: timezones, locale, network, etc..."
 echo "====================================================="
