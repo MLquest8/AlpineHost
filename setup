@@ -32,7 +32,8 @@ echo "Installing packages from the official repositories..."
 echo "====================================================="
 
 # Install everything
-grep -v "^#" setup-paclist | pacman -S
+sed -i '/^#.*ParallelDownloads/s/^#//' /etc/pacman.conf
+pacman -S $(grep -v "^#" setup-paclist)
 
 # Install rEFInd into /efi
 refind-install

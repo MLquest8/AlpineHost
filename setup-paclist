@@ -1,8 +1,8 @@
 #Readers
 #zathura zathura-cb zathura-pdf-mupdf zathura-djvu zathura-ps
 
-#Root
-efibootmgr refind intel-ucode networkmanager sudo btop
+#Absolute necessities
+efibootmgr refind intel-ucode networkmanager gvim btop
 
 #Xorg
 xorg xorg-xinit xorg-server xorg-xrandr xwallpaper
