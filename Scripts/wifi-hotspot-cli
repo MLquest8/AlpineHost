@@ -14,12 +14,6 @@ if [[ "$1" == "-h" || "$1" == "-H" || "$1" == "--help" ]]; then
     exit
 fi
 
-if [[ "$1" == "--casa" ]]; then
-    nmcli r wifi off && rfkill unblock wlan
-    sudo create_ap wlp1s0 enp2s0 casa xakankaragunisi
-    exit
-fi
-
 if [[ "$#" -gt 1 ]]; then
     ARGITERATOR=1
 
