@@ -1,4 +1,4 @@
-xwallpaper --center ~/.config/Archer/wallpaper.* & 
+xwallpaper --center ~/.config/wallpaper.* & 
 xcompmgr -c -f -D 10 & 
 
 nm-applet &

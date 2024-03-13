@@ -35,8 +35,9 @@ echo "====================================================="
 sed -i '/^#.*ParallelDownloads/s/^#//' /etc/pacman.conf
 pacman -S $(grep -v "^#" setup-paclist)
 
-# Install rEFInd into /efi
-refind-install
+# Install grub into /boot
+grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
+grub-mkconfig -o /boot/grub/grub.cfg
 
 # Activate systemd services
 systemctl enable systemd-timesyncd
@@ -53,19 +54,16 @@ cd executables
 
 	# DWM
 	git clone https://github.com/vipolar/dwm.git && cd dwm
-	git checkout dailyarcher
 	make install
 	cd ..
 
 	# DMENU
 	git clone https://github.com/vipolar/dmenu.git && cd dmenu
-	git checkout dailyarcher
 	make install
 	cd ..
 
 	# ST
 	git clone https://github.com/vipolar/st.git && cd st
-	git checkout dailyarcher
 	make install
 	cd ..
 
@@ -104,12 +102,7 @@ echo -e '[global-dns-domain-*]\nservers=9.9.9.9\n' > /etc/NetworkManager/conf.d/
 su -l $username -c 'sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended'
 sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="bira"/' $homedir/.zshrc
 sed -i 's/plugins=(git)/plugins=(git sudo)/' $homedir/.zshrc
-
-# Configure rEFInd
-mkdir -p /boot/efi/EFI/refind/themes/regular/
-cp -a -f Boot/. /boot/efi/EFI/refind/themes/regular/
-echo "include themes/regular/theme.conf" >> /boot/efi/EFI/refind/refind.conf
-echo "timeout 7" >> /boot/efi/EFI/refind/refind.conf
+chsh -s $(which zsh) $username
 
 # Copy and link dotfiles
 mkdir -p $homedir/.config/

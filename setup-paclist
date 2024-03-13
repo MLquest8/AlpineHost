@@ -1,8 +1,5 @@
-#Readers
-#zathura zathura-cb zathura-pdf-mupdf zathura-djvu zathura-ps
-
 #Absolute necessities
-efibootmgr refind intel-ucode networkmanager gvim btop
+efibootmgr grub intel-ucode networkmanager nvim htop
 
 #Xorg
 xorg xorg-xinit xorg-server xorg-xrandr xwallpaper
@@ -12,9 +9,6 @@ xf86-video-intel libva-intel-driver libva-utils
 
 #Audio
 pulseaudio pulseaudio-alsa alsa-utils
-
-#Internet
-firefox chromium qbittorrent yt-dlp
 
 #Fonts
 ttf-font-awesome ttf-dejavu
@@ -28,14 +22,11 @@ xf86-input-synaptics
 #Terminal
 zsh zsh-completions
 
+#Internet
+firefox qbittorrent
+
 #Files
 ranger p7zip
 
 #Passwords
 keepassxc
-
-#Media
-sxiv mpv
-
-#Code
-code gdb
