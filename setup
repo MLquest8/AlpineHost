@@ -1,7 +1,8 @@
 #!/bin/sh
+
 # Make sure only root can run the script
 if [[ $EUID -ne 0 ]]; then
-   echo "This script must be run as root" 1>&2
+   echo "Elevated permission is required to run full system installation!" 1>&2
    exit 1
 fi
 
@@ -106,7 +107,10 @@ passwd $username
 # Find homedir of the new user
 homedir=$(awk -F: -v v="$username" '{if ($1==v) print $6}' /etc/passwd)
 
-# set up Quad9 dns
+# Set up systemd miscellaneous configurations
+echo  'SystemMaxUse=100M' >> /etc/systemd/journald.conf
+
+# Set up Quad9 dns
 echo -e '[global-dns-domain-*]\nservers=9.9.9.9\n' > /etc/NetworkManager/conf.d/dns-servers.conf
 
 # Install and configure OhMyZsh

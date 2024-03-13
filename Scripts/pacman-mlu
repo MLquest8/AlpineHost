@@ -1,9 +1,0 @@
-#!/bin/bash
-
-if [ "$EUID" -ne 0 ]
-then
-	echo "Elevated permission required to modify /etc/pacman.d/mirrorlist"
-else
-	sed -i 's/#S/S/g' /etc/pacman.d/mirrorlist.pacnew
-	sed -n '/## Germany/, /## Greece/{ /## Greece/!p }' /etc/pacman.d/mirrorlist.pacnew > /etc/pacman.d/mirrorlist
-fi

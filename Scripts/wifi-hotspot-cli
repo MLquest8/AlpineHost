@@ -1,0 +1,78 @@
+#!/bin/bash
+
+if ! [ -x "$(command -v create_ap)" ]; then
+    echo 'Error: create_ap (wihotspot package) is not installed!' >&2
+    exit 1
+fi
+
+if [[ "$1" == "-h" || "$1" == "-H" || "$1" == "--help" ]]; then
+    echo -e "[-h | -H | --help]: Agument glossary";
+    echo -e "[-w | -W | --wifi]: Wifi interface";
+    echo -e "[-i | -I | --internet]: Internet interface";
+    echo -e "[-n | -N | --name | --ssid]: Network name (SSID)";
+    echo -e "[-p | -P | --pass | --password]: Network password";
+    exit
+fi
+
+if [[ "$1" == "--casa" ]]; then
+    nmcli r wifi off && rfkill unblock wlan
+    sudo create_ap wlp1s0 enp2s0 casa xakankaragunisi
+    exit
+fi
+
+if [[ "$#" -gt 1 ]]; then
+    ARGITERATOR=1
+
+    for ARG in "$@"; do
+        VALUEITERATOR=$((ARGITERATOR+1))
+
+        case $ARG in
+            -w | -W | --wifi)
+                OUTDEVICE=${!VALUEITERATOR}
+                ;;
+
+            -i | -I | --internet)
+                INDEVICE=${!VALUEITERATOR}
+                ;;
+
+            -n | -N | --name | --ssid)
+                NETNAME=${!VALUEITERATOR}
+                ;;
+
+            -p | -P | --pass | --password)
+                PASSWORD=${!VALUEITERATOR}
+                ;;
+        esac
+        ARGITERATOR=$((ARGITERATOR+1))
+    done
+
+    if [[ "$OUTDEVICE" != "" && "$INDEVICE" != "" && "$NETNAME" != "" && "$PASSWORD" != "" ]]; then
+        nmcli r wifi off && rfkill unblock wlan
+        sudo create_ap $OUTDEVICE $INDEVICE $NETNAME $PASSWORD
+    else
+        echo -e "[-h | -H | --help] For the script agument glossary";
+    fi
+
+    exit
+fi
+
+ip link
+
+read -p "Wifi interface: " OUTDEVICE
+read -p "Internet interface: " INDEVICE
+read -p "Network name (SSID): " NETNAME
+read -e -s -p "Network password: " PASSWORD
+read -e -s -p "Confirm password: " CPASSWORD
+
+if [[ "$OUTDEVICE" != "" && "$INDEVICE" != "" && "$NETNAME" != "" && "$PASSWORD" != "" ]]; then
+    while [[ "$PASSWORD" != "$CPASSWORD" ]] do
+        echo -e "Passwords do not match! Please re-enter:";
+        read -e -s -p "Network password: " PASSWORD
+        read -e -s -p "Confirm password: " CPASSWORD
+    done
+
+    nmcli r wifi off && rfkill unblock wlan
+    sudo create_ap $OUTDEVICE $INDEVICE $NETNAME $PASSWORD
+else
+    echo -e "\n[-h | -H | --help] For the script agument glossary";
+fi

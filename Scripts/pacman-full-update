@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# Make sure only root can run the script
+if [[ $EUID -ne 0 ]]; then
+   echo "Elevated permission is required to run full system update!" 1>&2
+   exit 1
+fi
+
+# Backup package keys
+mv /etc/pacman.d/gnupg{,.bak}
+
+# Update keys first and then the packages
+pacman -Sy --needed archlinux-keyring && pacman -Su
+
+# Remove orphaned packages
+pacman -Rns $(pacman -Qtdq)
+
+# Clear cache
+pacman -Sc
+
+# Update MirrorList
+sed -i 's/#S/S/g' /etc/pacman.d/mirrorlist.pacnew
+sed -n '/## Germany/, /## Greece/{ /## Greece/!p }' /etc/pacman.d/mirrorlist.pacnew > /etc/pacman.d/mirrorlist
