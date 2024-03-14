@@ -2,7 +2,7 @@
 
 # Make sure only root can run the script
 if [[ $EUID -ne 0 ]]; then
-   echo "Elevated permission is required to run full system update!" 1>&2
+   echo "Elevated permissions are required to run full system update!" 1>&2
    exit 1
 fi
 
