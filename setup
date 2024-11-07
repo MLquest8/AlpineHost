@@ -45,7 +45,7 @@ echo "====================================================="
 
 # Install everything
 sed -i '/^#.*ParallelDownloads/s/^#//' /etc/pacman.conf
-pacman -S $(grep -v "^#" setup-paclist)
+grep -v '^#' setup-paclist | tr '\n' ' ' | xargs sudo pacman -S
 
 # Install grub into /boot
 grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB

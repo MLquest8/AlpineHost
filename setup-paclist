@@ -1,5 +1,5 @@
 #Absolute necessities
-efibootmgr grub intel-ucode networkmanager dhcpcd nvim htop
+efibootmgr grub intel-ucode networkmanager dnsmasq htop ntfs-3g
 
 #Xorg
 xorg xorg-xinit xorg-server xorg-xrandr xwallpaper
